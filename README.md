@@ -1,87 +1,131 @@
-# LINKIT Data Engineer assignment - v2.2024.002
+# Complete ETL process
 
-## Important: Please read this whole assignment text before starting to develop the solution.
+This repository contains the solution developed for demonstrate skills in **data engineering**, including **synthetic data generation**, **processing with Apache Spark**, and **software engineering best practices**.
 
-The objective of this test is to evaluate your software development and design skills. Please create my_experience.md file outlining the instructions to execute the code and any issues you faced and assumptions you came into. If certain parts of the test is incomplete you can mention this too in the file. 
+---
 
-Consider performance, maintainability and scaling during the development, using programming best practices and developing your code with seperation of concerns is highly encouraged. You are free to execute this exercise in any cloud environment of your choice or even in your local laptop, but we expect the following:
+## 📂 Project Structure
 
-- Include the instructions to execute the application.
-- Please use a mainstream language such as Python, Scala or Java for the coding.
-- Apache Spark should be used for querying the data.
-- We do not accept Spark SQL queries to generate the results, instead use the spark dataframe API functionalities.
-- Adding appropriate unit testing to your code is highly encouraged and a definite plus point.
-- You are free to choose file formats and different packages and copy paste snippets of code from the internet, but make sure you are able to explain your choices and code in the final technical interview. 
+```bash
+.
+├── data/                     # Generated datasets (DS1, DS2, DS3)
+├── src/                      # Main source code
+│   ├── data_generation.py    # Script to generate datasets
+│   ├── data_queries.py       # Script with Spark queries
+│   ├── json_export.py        # Script to generate JSON files per customer
+│   └── utils/                # Helper functions and utilities
+├── tests/                    # Unit tests
+├── my_experience.md          # Notes about development process
+├── requirements.txt          # Project dependencies
+└── README.md                 # This file
 
-## **01 - Data Generation:**
 
-Generate and save 3 sets of data outlined below using the python Faker Library (https://faker.readthedocs.io/en/master/index.html). You are free to choose the file format for the tables.
+## 🚀 Technologies Used
 
-**Table 1 (DS1): CUSTOMER_DATA**
+* **Python 3.9+**
+* **Apache Spark (PySpark)**
+* **Faker** for synthetic data generation
+* **Pytest** for unit testing
+* **Docker** *(optional, if containerization is implemented)*
 
-Contains 200 records
+## ⚙️ Setup & Execution
 
-- CUSTOMER_NUMBER - Should have the structure: 4 letters + 4 numbers - e.g.: AAAA0001;
-- FIRST_NAME;
-- LAST_NAME;
-- BIRTH_DATE - Considering minimum age of 18;
-- SSN;
-- CUSTOMER_ADDRESS.STREET;
-- CUSTOMER_ADDRESS.HOUSE_NUMBER;
-- CUSTOMER_ADDRESS.CITY;
-- CUSTOMER_ADDRESS.STATE;
-- CUSTOMER_ADDRESS.COUNTRY;
-- CUSTOMER_ADDRESS.ZIP_CODE;
-- CREDITCARD.NUMBER;
-- CREDITCARD.EXPIRATION_DATE;
-- CREDITCARD.VERIFICATION_CODE;
-- CREDITCARD.PROVIDER;
+### 1. Clone the repository
 
-**Table 2 (DS2): CREDITCARD_TRANSACTION** 
+```bash
+git clone https://github.com/bentjul-eng/costumers_project.git
+cd costumers_project
+```
 
-**This table will have the transaction data for each transaction, contains 2000 records**
+### 2. Create and activate a virtual environment
 
-- TRANSACTION_ID - Random UUID (Universal Unique Identifier);
-- CUSTOMER_NUMBER - Random key from CUSTOMER_DATA;
-- TRANSACTION_VALUE - Sum of ITEM_VALUE X ITEM_QUANTITY in the PRODUCT_TRANSACTION table for that TRANSACTION_ID;
-- TRANSACTION_DATE_TIME - Random DATE TIME in the year of 2022;
+```bash
+python -m venv venv
+source venv/bin/activate   # Linux/Mac
+venv\Scripts\activate      # Windows
+```
 
-**Table 3 (DS3):  PRODUCT_TRANSACTION**
+### 3. Install dependencies
 
-**This table will have all items that is part of one transaction, contains 2000 records**
+```bash
+pip install -r requirements.txt
+```
 
-- TRANSACTION_ID - Consistent with CREDITCARD_TRANSACTION.TRANSACTION_ID, as it will be used for joins;
-- ITEM_EAN - Random EAN (European Article Number/International Article Number);
-- ITEM_DEPARTMENT - Any random 50 different words;
-- ITEM_VALUE - Random float smaller than 100.000;
-- ITEM_QUANTITY - Random number between 1 and 200 for a item in a transaction.
+### 4. Generate synthetic data
 
-## **02 - Querying Data**
+```bash
+python src/data_generation.py
+```
 
-- Generate a dataframe that contains the top 100 customers that has performed the biggest transactions in one single transaction, the records should be ordered by transaction value, the dataframe should contain the following fields:
-    - CUSTOMER_ID
-    - TRANSACTION_ID
-    - TRANSACTION_VALUE
-    - TRANSACTION_DATE_TIME
+This will create **CUSTOMER_DATA (DS1)**, **CREDITCARD_TRANSACTION (DS2)** and **PRODUCT_TRANSACTION (DS3)** inside the `data/` folder.
 
-- Generate a dataframe that contains total quantity and total value purchased by CREDITCARD.PROVIDER, where sales happened between midnight and noon. The dataframe should have the following fields:
-    - CREDITCARD.PROVIDER
-    - Total quantity of items
-    - Total value of items
+### 5. Run Spark queries
 
-## **03 - JSON output**
+```bash
+python src/data_queries.py
+```
 
-Generate one JSON file per customer of the top 100 customers by biggest transaction value in one single transaction, each file should contain:
-    - All customer details
-    - All details of the customers biggest transaction by value
-    - All product details of that transaction
+Produces the required dataframes:
+* **Top 100 customers by single biggest transaction**
+* **Summary by credit card provider (transactions between 00:00–12:00)**
 
-## **Bonus questions**
+### 6. Export JSONs for top 100 customers
 
-Attempt any one of the below tasks if you like to show off your skills and has some extra time.
+```bash
+python src/json_export.py
+```
 
-- Containerize the application, make sure data generation and data querying can be executed using the container image.
-- Create an application architecture diagram to productionize this application in the cloud, highlight the different cloud services you would use and there integrations.
-- Publish the creditcard_transactions data to a kafka message queue, ingest the data and save it using spark streaming. Make sure this executes with your container image.
+Creates one JSON file per customer containing:
+* All customer details
+* Their biggest transaction
+* All product details from that transaction
 
-Goodluck!!!
+## 🧪 Running Tests
+
+To execute unit tests:
+
+```bash
+pytest tests/
+```
+
+## 📊 Expected Results
+
+### Query 1
+Top 100 customers by largest single transaction:
+* CUSTOMER_ID
+* TRANSACTION_ID
+* TRANSACTION_VALUE
+* TRANSACTION_DATE_TIME
+
+### Query 2
+Summary by credit card provider (00:00–12:00):
+* CREDITCARD.PROVIDER
+* Total quantity of items
+* Total value of items
+
+### JSON Files
+One file per customer, containing:
+* Full customer details
+* Their largest transaction details
+* All product details for that transaction
+
+## 🏆 Bonus (optional)
+
+* **Containerization**: run both data generation and queries within a Docker container.
+* **Cloud Architecture**: design a cloud architecture diagram (e.g., S3, EMR, Glue, Kafka, etc.).
+* **Streaming with Kafka + Spark Structured Streaming**: ingest and persist transactions in real-time.
+
+## 📌 Notes
+
+* All processing is done using the **Spark DataFrame API** (no Spark SQL).
+* Code is structured with separation of concerns for **generation**, **querying**, and **export**.
+* Dependencies are centralized in `requirements.txt`.
+
+
+## ✍️ Author
+
+<<<<<<< HEAD
+**Julia Bento**.
+=======
+**Julia Bento**.
+>>>>>>> 104e2a19edc9e3ff5e0a4f0d3506a59bc330b904

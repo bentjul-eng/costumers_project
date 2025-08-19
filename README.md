@@ -124,4 +124,8 @@ One file per customer, containing:
 
 ## ✍️ Author
 
+<<<<<<< HEAD
 **Julia Bento**.
+=======
+**Julia Bento**.
+>>>>>>> 104e2a19edc9e3ff5e0a4f0d3506a59bc330b904
